@@ -413,7 +413,28 @@ impl SupportedStreamConfig {
     }
 }
 
+impl Into<std::time::Duration> for StreamInstant {
+    fn into(self) -> std::time::Duration {
+        Duration::new(self.secs as u64, self.nanos)
+    }
+}
+
+impl Into<std::time::Duration> for &StreamInstant {
+    fn into(self) -> std::time::Duration {
+        Duration::new(self.secs as u64, self.nanos)
+    }
+}
+
 impl StreamInstant {
+    /// The Instant of the StreamInstant as a reference to the base_instant
+    pub fn to_instant(&self, base_instant: std::time::Instant) -> std::time::Instant {
+        // Convert secs and nanos from StreamInstant to a Duration
+        let duration_since_epoch: Duration = self.into();
+
+        // Adjust the base instant by the duration to get the target instant
+        base_instant + duration_since_epoch
+    }
+
     /// The amount of time elapsed from another instant to this one.
     ///
     /// Returns `None` if `earlier` is later than self.
